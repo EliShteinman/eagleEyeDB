@@ -53,48 +53,50 @@ def get_connection(_config=config, attempts=3, delay=2):
             attempt += 1
     return None
 
-# SQL queries
-get_all = "SELECT * FROM agents"
-add_agent = """
-            INSERT INTO agents (codeName, realName, location, status, missionsCompleted) 
-            VALUES (%s, %s, %s, %s, 5)
-            """
-agents = [
-    ("Agent001", "Jason Bourne", "New York", "Active"),
-    ("Agent002", "Natasha Romanoff", "Moscow", "Inactive"),
-    ("Agent003", "Ethan Hunt", "Paris", "Active"),
-    ("Agent004", "Lara Croft", "Cairo", "Inactive")
-]
 
-def main():
+
+def get_all_agents():
+    get_all = "SELECT * FROM agents"
     with get_connection() as conn:
         if conn and conn.is_connected():
-            with conn.cursor(dictionary=True) as cmd:
-                for agent in agents:
-                    cmd.execute(add_agent, agent)
-                    conn.commit()
-                # rows = cursor.fetchall()
-                # while cursor.fetchone():
-                #     print(cursor.fetchone())
-                for row in cmd:
-                    print(row)
-
-                # for row in rows:
-                #     print(row)
+            with conn.cursor() as cursor:
+                cursor.execute(get_all)
+                return cursor.fetchall()
         else:
             logger.error("Failed to connect to the database after multiple attempts.")
-            exit(1)
+            return None
+
+def add_agent_to_db(agent: tuple):
+    add_agent = """
+                INSERT INTO agents (codeName, realName, location, status, missionsCompleted)
+                VALUES (%s, %s, %s, %s, 5)
+                """
+    with get_connection() as conn:
+        if conn and conn.is_connected():
+            with conn.cursor() as cursor:
+                cursor.execute(add_agent, agent)
+                conn.commit()
+                logger.info("Agent added successfully: %s", agent)
+        else:
+            logger.error("Failed to connect to the database after multiple attempts.")
+            return None
+
+def main():
+    agents = [
+        ("Agent001", "Jason Bourne", "New York", "Active"),
+        ("Agent002", "Natasha Romanoff", "Moscow", "Inactive"),
+        ("Agent003", "Ethan Hunt", "Paris", "Active"),
+        ("Agent004", "Lara Croft", "Cairo", "Inactive")
+    ]
+    for agent in agents:
+        add_agent_to_db(agent)
+    all_agents = get_all_agents()
+    if all_agents:
+        logger.info("All agents in the database:")
+        for agent in all_agents:
+            logger.info(agent)
+            print(agent)
 
 
 if __name__ == "__main__":
     main()
-    # Uncomment the following lines to add an agent
-    # with get_connection() as cnx:
-    #     if cnx and cnx.is_connected():
-    #         with cnx.cursor() as cursor:
-    #             cursor.execute(add_agent, val)
-    #             cnx.commit()
-    #             print("Agent added successfully.")
-    #     else:
-    #         logger.error("Failed to connect to the database after multiple attempts.")
-    #         exit(1)
