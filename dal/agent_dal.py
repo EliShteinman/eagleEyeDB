@@ -16,7 +16,7 @@ def get_all_agents():
 
 def add_agent_to_db(agent: tuple):
     add_agent = """
-                INSERT INTO agents (code_name, real_name, location, status, missions_completed)
+                INSERT IGNORE INTO agents (code_name, real_name, location, status, missions_completed)
                 VALUES (%s, %s, %s, %s, %s)
                 """
     with get_connection() as conn:
@@ -28,11 +28,3 @@ def add_agent_to_db(agent: tuple):
         else:
             logger.error("Failed to connect to the database after multiple attempts.")
             return None
-
-
-def main():
-    pass
-
-
-if __name__ == "__main__":
-    main()

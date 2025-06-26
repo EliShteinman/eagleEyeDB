@@ -3,6 +3,7 @@ import time
 from logging_config import logger
 import mysql
 from dotenv import load_dotenv
+import mysql.connector
 
 # Load environment variables from .env file
 load_dotenv()
