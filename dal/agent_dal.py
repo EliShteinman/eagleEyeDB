@@ -6,6 +6,8 @@ import logging
 from mysql.connector import connection
 import time
 
+from models.agent import Agent
+
 # Set up logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -59,7 +61,7 @@ def get_all_agents():
     get_all = "SELECT * FROM agents"
     with get_connection() as conn:
         if conn and conn.is_connected():
-            with conn.cursor() as cursor:
+            with conn.cursor(dictionary=True) as cursor:
                 cursor.execute(get_all)
                 return cursor.fetchall()
         else:
@@ -68,8 +70,8 @@ def get_all_agents():
 
 def add_agent_to_db(agent: tuple):
     add_agent = """
-                INSERT INTO agents (codeName, realName, location, status, missionsCompleted)
-                VALUES (%s, %s, %s, %s, 5)
+                INSERT INTO agents (code_name, real_name, location, status, missions_completed)
+                VALUES (%s, %s, %s, %s, %s)
                 """
     with get_connection() as conn:
         if conn and conn.is_connected():
@@ -83,10 +85,14 @@ def add_agent_to_db(agent: tuple):
 
 def main():
     agents = [
-        ("Agent001", "Jason Bourne", "New York", "Active"),
-        ("Agent002", "Natasha Romanoff", "Moscow", "Inactive"),
-        ("Agent003", "Ethan Hunt", "Paris", "Active"),
-        ("Agent004", "Lara Croft", "Cairo", "Inactive")
+        ("Agent001", "Jason Bourne", "New York", "Active", 5),
+        ("Agent002", "Natasha Romanoff", "Moscow", "Inactive", 3),
+        ("Agent003", "Ethan Hunt", "Paris", "Active", 7),
+        ("Agent004", "Lara Croft", "Cairo", "Inactive", 2),
+        ("Agent005", "James Bond", "London", "Active", 10),
+        ("Agent006", "John Wick", "New York", "Active", 8),
+        ("Agent007", "Black Widow", "Budapest", "Inactive", 4),
+        ("Agent008", "Tom Cruise", "Tokyo", "Active", 6),
     ]
     for agent in agents:
         add_agent_to_db(agent)
@@ -94,7 +100,7 @@ def main():
     if all_agents:
         logger.info("All agents in the database:")
         for agent in all_agents:
-            logger.info(agent)
+            agent = Agent(**agent)
             print(agent)
 
 

@@ -1,4 +1,4 @@
-from enums import AgentStatus
+from models.enums import AgentStatus
 
 
 class Agent:
