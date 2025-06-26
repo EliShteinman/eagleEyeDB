@@ -31,11 +31,6 @@ config = {
     "password": os.getenv("DATABASE_PASSWORD", ""),
     "database": os.getenv("DATABASE_NAME", "eagleEyeDB"),
 }
-cmd = "SELECT * FROM agents"
-add_agent = "INSERT INTO agents (codeName, realName, location, status, missionsCompleted) VALUES (%s, %s, %s, %s, 5)"
-val = ("Agent007", "James Bond", "London", "Active")
-
-
 def get_connection(_config=config, attempts=3, delay=2):
     attempt = 1
     # Implement a reconnection routine
@@ -58,18 +53,48 @@ def get_connection(_config=config, attempts=3, delay=2):
             attempt += 1
     return None
 
+# SQL queries
+get_all = "SELECT * FROM agents"
+add_agent = """
+            INSERT INTO agents (codeName, realName, location, status, missionsCompleted) 
+            VALUES (%s, %s, %s, %s, 5)
+            """
+agents = [
+    ("Agent001", "Jason Bourne", "New York", "Active"),
+    ("Agent002", "Natasha Romanoff", "Moscow", "Inactive"),
+    ("Agent003", "Ethan Hunt", "Paris", "Active"),
+    ("Agent004", "Lara Croft", "Cairo", "Inactive")
+]
 
-with get_connection() as cnx:
-    if cnx and cnx.is_connected():
-        with cnx.cursor() as cursor:
-            result = cursor.execute(cmd)
-            # cnx.commit()
-            rows = cursor.fetchall()
-            for rows in rows:
-                print(rows)
-    else:
-        logger.error("Failed to connect to the database after multiple attempts.")
-        exit(1)
+def main():
+    with get_connection() as conn:
+        if conn and conn.is_connected():
+            with conn.cursor(dictionary=True) as cmd:
+                for agent in agents:
+                    cmd.execute(add_agent, agent)
+                    conn.commit()
+                # rows = cursor.fetchall()
+                # while cursor.fetchone():
+                #     print(cursor.fetchone())
+                for row in cmd:
+                    print(row)
+
+                # for row in rows:
+                #     print(row)
+        else:
+            logger.error("Failed to connect to the database after multiple attempts.")
+            exit(1)
 
 
-get_connection()
+if __name__ == "__main__":
+    main()
+    # Uncomment the following lines to add an agent
+    # with get_connection() as cnx:
+    #     if cnx and cnx.is_connected():
+    #         with cnx.cursor() as cursor:
+    #             cursor.execute(add_agent, val)
+    #             cnx.commit()
+    #             print("Agent added successfully.")
+    #     else:
+    #         logger.error("Failed to connect to the database after multiple attempts.")
+    #         exit(1)
