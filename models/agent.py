@@ -8,13 +8,13 @@ class Agent:
     """
 
     def __init__(
-            self,
-            code_name: str,
-            real_name: str,
-            location: str,
-            status: str = "active",
-            missions_completed: int = 0,
-            _id: int = None,
+        self,
+        code_name: str,
+        real_name: str,
+        location: str,
+        status: str = "active",
+        missions_completed: int = 0,
+        _id: int = None,
     ):
         """
         Initializes an Agent object with the given parameters.
