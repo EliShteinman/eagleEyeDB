@@ -27,4 +27,3 @@ def add_agent_to_db(agent: tuple):
                 logger.info("Agent added successfully: %s", agent)
         else:
             logger.error("Failed to connect to the database after multiple attempts.")
-            return None
